@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="format-detection" content="telephone=no">
+<title>G.G. — Séquences Numériques Grabovoï</title>
+<style>
+  :root {
+    --bg: #faf8fc;
+    --surface: #f3eef8;
+    --surface2: #ede6f5;
+    --border: #ddd4ec;
+    --border-strong: #c4b4dc;
+    --text: #1a1228;
+    --text-soft: #3d2e58;
+    --muted: #7a6895;
+    --dim: #b0a0c8;
+    --pink: #d63a7a;
+    --pink-light: #f06090;
+    --pink-bg: #fce8f2;
+    --violet: #7c3aad;
+    --violet-light: #a066cc;
+    --violet-bg: #f0e8f8;
+    --rose: #e8759a;
+    --grey: #8a8090;
+    --highlight: #f5eeff;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 12px;
+    min-height: 100vh;
+  }
+
+  a[href^="tel"] {
+    color: inherit;
+    text-decoration: none;
+    pointer-events: none;
+  }
+
+  header {
+    background: white;
+    border-bottom: 2px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .logo span { color: var(--pink); }
+  .logo-sub {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: normal;
+  }
+  .header-pill {
+    margin-left: auto;
+    background: var(--violet-bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 10px;
+    color: var(--violet);
+  }
+  .header-pill strong { color: var(--violet); font-weight: bold; }
+
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 6px rgba(120,60,160,0.06);
+    flex-wrap: wrap;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .toolbar-label {
+    font-size: 10px;
+    color: var(--text-soft);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .toolbar-select {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    padding: 7px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 5px;
+    background: white;
+    color: var(--text);
+    outline: none;
+  }
+
+  .toolbar-select:focus {
+    border-color: var(--violet);
+  }
+
+  .bdd-row {
+    grid-template-columns:
+      var(--col-sn)
+      var(--col-sujet)
+      var(--col-desc)
+      var(--col-source)
+      var(--col-action);
+  }
+
+  .search-box {
+    position: relative;
+    flex: 1 1 200px;
+    max-width: 540px;
+    min-width: 150px;
+  }
+  #searchInput {
+    width: 100%;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 11px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 7px 11px;
+    background: white;
+    color: var(--text);
+    outline: none;
+    transition: border 0.15s;
+    -webkit-appearance: none;
+  }
+  #searchInput::placeholder,
+  #searchInput::-webkit-input-placeholder,
+  #searchInput::-moz-placeholder {
+    color: var(--muted);
+    opacity: 1;
+  }
+  #searchInput:focus {
+    border-color: var(--violet);
+    color: var(--text);
+  }
+
+  .icon-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 10px;
+    color: var(--text-soft);
+    white-space: nowrap;
+  }
+  .icon-toggle input[type="checkbox"] {
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+  }
+  .icon-toggle label {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .btn-toolbar {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 7px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  #addToggle {
+    background: var(--violet);
+    color: white;
+  }
+  #addToggle:hover {
+    background: var(--violet-light);
+  }
+  #btnExport {
+    background: var(--surface2);
+    color: var(--violet);
+    border: 1px solid var(--border-strong);
+  }
+  #btnExport:hover {
+    background: var(--violet-bg);
+  }
+  .add-form {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+  .add-form.open {
+    max-height: 800px;
+    padding: 16px 32px;
+  }
+  .form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .form-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .form-col label {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-soft);
+  }
+  .form-col input, .form-col textarea {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 11px;
+    padding: 7px 10px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 5px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border 0.15s;
+    -webkit-appearance: none;
+  }
+  .form-col input:focus, .form-col textarea:focus {
+    border-color: var(--violet);
+    background: white;
+  }
+  .form-col textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+  .form-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    font-size: 11px;
+    color: var(--text-soft);
+  }
+  .form-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  .form-checkbox label {
+    cursor: pointer;
+    user-select: none;
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .btn-form {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  #btnAdd {
+    background: var(--violet);
+    color: white;
+  }
+  #btnAdd:hover {
+    background: var(--violet-light);
+  }
+  #btnCancel {
+    background: var(--surface2);
+    color: var(--text-soft);
+    border: 1px solid var(--border-strong);
+  }
+  #btnCancel:hover {
+    background: var(--border);
+  }
+  .form-feedback {
+    font-size: 11px;
+    margin-top: 8px;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .form-feedback.show {
+    max-height: 60px;
+    padding: 8px 10px;
+    border-radius: 4px;
+  }
+  .form-feedback.ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #81c784; }
+  .form-feedback.err { background: #ffeaea; color: #c62828; border: 1px solid #e57373; }
+
+  .results-meta {
+    padding: 12px 32px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .results-meta strong { color: var(--text); font-weight: bold; }
+  .bdd-list {
+    padding: 0 32px 32px;
+    margin-top: 16px;
+  }
+  .bdd-row {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 140px 1fr 2fr 1fr 40px;
+    gap: 12px;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .bdd-row:hover {
+    border-color: var(--border-strong);
+    background: var(--highlight);
+    box-shadow: 0 2px 8px rgba(120,60,160,0.08);
+  }
+  .cell {
+    font-size: 11px;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cell-sn {
+    font-weight: bold;
+    color: var(--violet);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none !important;
+    -webkit-text-decoration: none !important;
+  }
+  .sn-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .sn-icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .cell-sujet {
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-soft);
+  }
+  .cell-desc {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .cell-source {
+    font-size: 9px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .cell-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .load-more {
+    text-align: center;
+    padding: 20px;
+  }
+  #btnLoadMore {
+    background: var(--violet-bg);
+    color: var(--violet);
+    border: 1px solid var(--border-strong);
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  #btnLoadMore:hover {
+    background: var(--violet);
+    color: white;
+  }
+  mark {
+    background: rgba(214, 58, 122, 0.15); /* rose doux */
+    color: var(--pink);
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(26,18,40,0.5);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s;
+  }
+  .overlay.open { display: flex; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .detail-panel {
+    background: white;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 40px rgba(120,60,160,0.25);
+    animation: slideUp 0.25s;
+  }
+  @keyframes slideUp { from{transform:translateY(30px); opacity:0} to{transform:translateY(0); opacity:1} }
+  .panel-header {
+    position: sticky;
+    top: 0;
+    background: var(--violet);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  .panel-header h2 {
+    flex: 1;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.15s;
+  }
+  .panel-close:hover { background: rgba(255,255,255,0.25); }
+  .panel-body {
+    padding: 24px;
+  }
+  .detail-section {
+    margin-bottom: 18px;
+  }
+  .detail-label {
+    font-size: 9px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .detail-value {
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .detail-hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+  .panel-actions {
+    padding: 16px 24px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    border-radius: 0 0 10px 10px;
+  }
+  .btn-panel {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 9px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  #btnPanelEdit,
+  #btnPanelSave {
+    background: var(--violet);
+    color: white;
+  }
+  #btnPanelEdit:hover,
+  #btnPanelSave:hover { background: var(--violet-light); }
+  #btnPanelCancel {
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+  }
+  #btnPanelCancel:hover { background: #e0e0e0; }
+  #btnPanelDelete {
+    background: var(--pink-bg);
+    color: var(--pink);
+    border: 1px solid var(--pink-light);
+  }
+  #btnPanelDelete:hover { background: var(--pink); color: white; }
+  #editModeButtons {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+  .delete-confirm {
+    background: #ffeaea;
+    border: 1px solid #e57373;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-top: 12px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+  .delete-confirm.show { display: flex; }
+  .delete-confirm-text {
+    flex: 1;
+    font-size: 10px;
+    color: #c62828;
+    font-weight: 600;
+  }
+  .btn-del {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  #btnDelYes {
+    background: #c62828;
+    color: white;
+  }
+  #btnDelYes:hover { background: #b71c1c; }
+  #btnDelNo {
+    background: white;
+    color: #c62828;
+    border: 1px solid #e57373;
+  }
+  #btnDelNo:hover { background: #ffeaea; }
+
+  @media (max-width: 768px) {
+    header {
+      padding: 12px 16px;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .header-pill {
+      margin-left: 0;
+      align-self: flex-start;
+    }
+    .toolbar {
+      padding: 10px 16px;
+      gap: 8px;
+    }
+    .search-box {
+      flex: 1 1 100%;
+      max-width: none;
+      order: -1;
+    }
+    #searchInput,
+    .form-col input,
+    .form-col textarea {
+      font-size: 16px;
+      padding: 10px 12px;
+      color: #000 !important;
+      background: white !important;
+    }
+    .icon-toggle {
+      order: 2;
+      flex: 1 1 100%;
+      justify-content: center;
+    }
+    .btn-toolbar {
+      font-size: 9px;
+      padding: 8px 10px;
+    }
+    .add-form.open {
+      padding: 16px;
+    }
+    .form-row {
+      flex-direction: column;
+      gap: 10px;
+    }
+    .results-meta {
+      padding: 10px 16px;
+    }
+    .bdd-list {
+      padding: 0 16px 24px;
+    }
+    .bdd-row {
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 12px;
+    }
+    .cell-sn {
+      font-size: 12px;
+    }
+    .cell-desc, .cell-source {
+      display: none;
+    }
+    .detail-panel {
+      width: 95%;
+      max-height: 90vh;
+      border-radius: 8px;
+    }
+    .panel-header {
+      padding: 14px 16px;
+    }
+    .panel-body {
+      padding: 20px 16px;
+    }
+    .panel-actions {
+      padding: 14px 16px;
+      flex-direction: column;
+    }
+    .btn-panel {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .logo {
+      font-size: 11px;
+    }
+    .logo-sub {
+      font-size: 9px;
+    }
+    .header-pill {
+      font-size: 9px;
+      padding: 3px 10px;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    GG <span>—</span>
+    <div class="logo-sub">Séquences Numériques Grabovoï</div>
+  </div>
+  <div class="header-pill">
+    <strong id="totalCount">0</strong> SN
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Rechercher une SN, un sujet, un mot-clé…" autocomplete="off">
+  </div>
+  <div class="toolbar-group">
+    <label for="sortSelect" class="toolbar-label">Tri</label>
+    <select id="sortSelect" class="toolbar-select">
+      <option value="id_desc">Plus récents</option>
+      <option value="id_asc">Plus anciens</option>
+      <option value="sn_asc">SN A → Z</option>
+      <option value="sn_desc">SN Z → A</option>
+      <option value="sujet_asc">Sujet A → Z</option>
+      <option value="sujet_desc">Sujet Z → A</option>
+    </select>
+  </div>
+  <div class="icon-toggle">
+    <input type="checkbox" id="hideAllIcons">
+    <label for="hideAllIcons">Masquer toutes les icônes</label>
+  </div>
+  <button class="btn-toolbar" id="addToggle">+ Ajouter une SN</button>
+  <button class="btn-toolbar" id="btnExport">Exporter CSV</button>
+</div>
+
+<div class="add-form" id="addForm">
+  <div class="form-row">
+    <div class="form-col">
+      <label>Séquence Numérique *</label>
+      <input type="text" id="f_sn" placeholder="Ex: 519 7148" maxlength="30">
+    </div>
+    <div class="form-col">
+      <label>Sujet *</label>
+      <input type="text" id="f_sujet" placeholder="Ex: SANTÉ GÉNÉRALE" maxlength="100">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-col">
+      <label>Mots-clés</label>
+      <input type="text" id="f_mots" placeholder="Ex: bien-être, vitalité, harmonie" maxlength="200">
+    </div>
+    <div class="form-col">
+      <label>Source</label>
+      <input type="text" id="f_source" placeholder="Ex: Livre principal, Vol. 2" maxlength="100">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-col">
+      <label>Description</label>
+      <textarea id="f_desc" placeholder="Détails ou notes complémentaires…"></textarea>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-col">
+      <label>Plantes associées</label>
+      <input type="text" id="f_plantes" placeholder="Ex: camomille, menthe" maxlength="200">
+    </div>
+    <div class="form-col">
+      <label>Icône personnalisée</label>
+      <input type="text" id="f_icone" placeholder="Emoji ou URL d'image" maxlength="500">
+    </div>
+  </div>
+  <div class="form-checkbox">
+    <input type="checkbox" id="f_masquer_icone">
+    <label for="f_masquer_icone">Masquer l'icône pour cette SN</label>
+  </div>
+  <div class="form-actions">
+    <button class="btn-form" id="btnAdd">Ajouter</button>
+    <button class="btn-form" id="btnCancel">Annuler</button>
+  </div>
+  <div class="form-feedback" id="addFeedback"></div>
+</div>
+
+<div class="results-meta">
+  <span><strong id="resultCount">0</strong> résultat(s)</span>
+  <span id="statusText"></span>
+</div>
+
+<div class="bdd-list" id="bddList"></div>
+
+<div class="load-more" id="loadMore" style="display:none;">
+  <button id="btnLoadMore">Afficher plus</button>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="detail-panel">
+    <div class="panel-header">
+      <h2 id="d_sn">—</h2>
+      <button class="panel-close" id="panelClose">×</button>
+    </div>
+
+    <div class="panel-body" id="panelViewMode">
+      <div class="detail-section">
+        <div class="detail-label">Sujet</div>
+        <div class="detail-value" id="d_sujet">—</div>
+      </div>
+      <div class="detail-section" id="d_mots_wrap" style="display:none;">
+        <div class="detail-label">Mots-clés</div>
+        <div class="detail-value" id="d_mots">—</div>
+      </div>
+      <hr class="detail-hr" id="d_hr1" style="display:none;">
+      <div class="detail-section" id="d_desc_wrap" style="display:none;">
+        <div class="detail-label">Description</div>
+        <div class="detail-value" id="d_desc">—</div>
+      </div>
+      <div class="detail-section" id="d_source_wrap" style="display:none;">
+        <div class="detail-label">Source</div>
+        <div class="detail-value" id="d_source">—</div>
+      </div>
+      <div class="detail-section" id="d_plantes_wrap" style="display:none;">
+        <div class="detail-label">Plantes associées</div>
+        <div class="detail-value" id="d_plantes">—</div>
+      </div>
+    </div>
+
+    <div class="panel-body" id="panelEditMode" style="display:none;">
+      <div class="form-row">
+        <div class="form-col">
+          <label>Séquence Numérique *</label>
+          <input type="text" id="e_sn" maxlength="30">
+        </div>
+        <div class="form-col">
+          <label>Sujet *</label>
+          <input type="text" id="e_sujet" maxlength="100">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-col">
+          <label>Mots-clés</label>
+          <input type="text" id="e_mots" maxlength="200">
+        </div>
+        <div class="form-col">
+          <label>Source</label>
+          <input type="text" id="e_source" maxlength="100">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-col" style="flex: 1 1 100%;">
+          <label>Description</label>
+          <textarea id="e_desc" rows="3" maxlength="5000"></textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-col">
+          <label>Plantes associées</label>
+          <input type="text" id="e_plantes" maxlength="200">
+        </div>
+        <div class="form-col">
+          <label>Icône personnalisée</label>
+          <input type="text" id="e_icone" maxlength="500">
+        </div>
+      </div>
+      <div class="form-checkbox">
+        <input type="checkbox" id="e_masquer_icone">
+        <label for="e_masquer_icone">Masquer l'icône pour cette SN</label>
+      </div>
+    </div>
+
+    <div class="panel-actions">
+      <div id="viewModeButtons">
+        <button class="btn-panel" id="btnPanelEdit">Modifier</button>
+        <button class="btn-panel" id="btnPanelDelete">Supprimer</button>
+        <div class="delete-confirm" id="delConfirm">
+          <span class="delete-confirm-text">Vraiment supprimer ?</span>
+          <button class="btn-del" id="btnDelYes">Oui</button>
+          <button class="btn-del" id="btnDelNo">Non</button>
+        </div>
+      </div>
+
+      <div id="editModeButtons" style="display:none;">
+        <button class="btn-panel" id="btnPanelSave">Enregistrer</button>
+        <button class="btn-panel" id="btnPanelCancel">Annuler</button>
+        <div class="form-feedback" id="panelFeedback"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
