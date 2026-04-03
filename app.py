@@ -7,14 +7,26 @@ from typing import Any
 
 import psycopg
 from psycopg.rows import dict_row
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, redirect, url_for, render_template, render_template_string, session
+from functools import wraps
 
 app = Flask(__name__)
+app.secret_key = "change-moi-vite"  # ⚠️ important pour les sessions
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
+PASSWORD = os.getenv("APP_PASSWORD")
 
 if not DATABASE_URL:
     raise RuntimeError("La variable d'environnement DATABASE_URL est obligatoire.")
+
+
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not session.get("logged_in"):
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return wrapper
 
 
 def get_db_connection() -> psycopg.Connection:
@@ -105,11 +117,13 @@ def health() -> tuple[dict[str, str], int]:
 
 
 @app.route("/")
-def index():
+@login_required
+def home():
     return render_template("index.html")
 
 
 @app.route("/api/sequences", methods=["GET"])
+@login_required
 def get_sequences():
     try:
         with get_db_connection() as conn:
@@ -130,6 +144,7 @@ def get_sequences():
 
 
 @app.route("/api/sequences/<int:sequence_id>", methods=["GET"])
+@login_required
 def get_sequence(sequence_id: int):
     try:
         with get_db_connection() as conn:
@@ -154,6 +169,7 @@ def get_sequence(sequence_id: int):
 
 
 @app.route("/api/sequences", methods=["POST"])
+@login_required
 def create_sequence():
     data = request.get_json(silent=True)
 
@@ -208,6 +224,7 @@ def create_sequence():
 
 
 @app.route("/api/sequences/<int:sequence_id>", methods=["PUT"])
+@login_required
 def update_sequence(sequence_id: int):
     data = request.get_json(silent=True)
 
@@ -278,6 +295,7 @@ def update_sequence(sequence_id: int):
 
 
 @app.route("/api/sequences/<int:sequence_id>", methods=["DELETE"])
+@login_required
 def delete_sequence(sequence_id: int):
     try:
         with get_db_connection() as conn:
@@ -304,6 +322,7 @@ def delete_sequence(sequence_id: int):
 
 
 @app.route("/api/sequences/search", methods=["GET"])
+@login_required
 def search_sequences():
     query = request.args.get("q", "").strip()
 
@@ -347,6 +366,31 @@ def search_sequences():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# Page login simple
+LOGIN_PAGE = """
+<form method="post">
+    <input type="password" name="password" placeholder="Mot de passe" required>
+    <button type="submit">Connexion</button>
+</form>
+{% if error %}
+<p style="color:red;">{{ error }}</p>
+{% endif %}
+"""
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        password = request.form.get("password")
+
+        if password == PASSWORD:
+            session["logged_in"] = True
+            return redirect(url_for("home"))
+        else:
+            return render_template_string(LOGIN_PAGE, error="Mot de passe incorrect")
+
+    return render_template_string(LOGIN_PAGE)
 
 
 if __name__ == "__main__":

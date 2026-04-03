@@ -19,7 +19,7 @@
     --pink: #d63a7a;
     --pink-light: #f06090;
     --pink-bg: #fce8f2;
-    --violet: #7c3aad;
+    --violet: #894ab8;
     --violet-light: #a066cc;
     --violet-bg: #f0e8f8;
     --rose: #e8759a;
@@ -376,7 +376,7 @@
     -webkit-text-decoration: none !important;
   }
   .sn-icon {
-    font-size: 14px;
+    font-size: 22px;
     flex-shrink: 0;
   }
   .sn-icon-img {
@@ -722,17 +722,6 @@
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="Rechercher une SN, un sujet, un mot-clé…" autocomplete="off">
   </div>
-  <div class="toolbar-group">
-    <label for="sortSelect" class="toolbar-label">Tri</label>
-    <select id="sortSelect" class="toolbar-select">
-      <option value="id_desc">Plus récents</option>
-      <option value="id_asc">Plus anciens</option>
-      <option value="sn_asc">SN A → Z</option>
-      <option value="sn_desc">SN Z → A</option>
-      <option value="sujet_asc">Sujet A → Z</option>
-      <option value="sujet_desc">Sujet Z → A</option>
-    </select>
-  </div>
   <div class="icon-toggle">
     <input type="checkbox" id="hideAllIcons">
     <label for="hideAllIcons">Masquer toutes les icônes</label>
@@ -745,21 +734,21 @@
   <div class="form-row">
     <div class="form-col">
       <label>Séquence Numérique *</label>
-      <input type="text" id="f_sn" placeholder="Ex: 519 7148" maxlength="30">
+      <input type="text" id="f_sn" placeholder="Ex: 519 7148" maxlength="100">
     </div>
     <div class="form-col">
       <label>Sujet *</label>
-      <input type="text" id="f_sujet" placeholder="Ex: SANTÉ GÉNÉRALE" maxlength="100">
+      <input type="text" id="f_sujet" placeholder="Ex: SANTÉ GÉNÉRALE" maxlength="500">
     </div>
   </div>
   <div class="form-row">
     <div class="form-col">
       <label>Mots-clés</label>
-      <input type="text" id="f_mots" placeholder="Ex: bien-être, vitalité, harmonie" maxlength="200">
+      <input type="text" id="f_mots" placeholder="Ex: bien-être, vitalité, harmonie" maxlength="500">
     </div>
     <div class="form-col">
       <label>Source</label>
-      <input type="text" id="f_source" placeholder="Ex: Livre principal, Vol. 2" maxlength="100">
+      <input type="text" id="f_source" placeholder="Ex: Livre principal, Vol. 2" maxlength="500">
     </div>
   </div>
   <div class="form-row">
@@ -771,11 +760,11 @@
   <div class="form-row">
     <div class="form-col">
       <label>Plantes associées</label>
-      <input type="text" id="f_plantes" placeholder="Ex: camomille, menthe" maxlength="200">
+      <input type="text" id="f_plantes" placeholder="Ex: camomille, menthe" maxlength="500">
     </div>
     <div class="form-col">
       <label>Icône personnalisée</label>
-      <input type="text" id="f_icone" placeholder="Emoji ou URL d'image" maxlength="500">
+      <input type="text" id="f_icone" placeholder="Emoji ou URL d'image" maxlength="50">
     </div>
   </div>
   <div class="form-checkbox">

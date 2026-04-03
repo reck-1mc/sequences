@@ -448,11 +448,11 @@ function exportCSV() {
 
 // ==================== EVENTS ====================
 
-document.getElementById("sortSelect").addEventListener("change", (e) => {
-  currentSort = e.target.value;
-  currentPage = 1;
-  render();
-});
+// document.getElementById("sortSelect").addEventListener("change", (e) => {
+//   currentSort = e.target.value;
+//   currentPage = 1;
+//   render();
+// });
 
 document.getElementById("searchInput").addEventListener("input", (e) => {
   clearTimeout(window.__searchTimer);
